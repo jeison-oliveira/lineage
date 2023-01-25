@@ -50,4 +50,4 @@ PRODUCT_PACKAGES += smartgas_service_client
 # Manager
 PRODUCT_PACKAGES += devtitans.smartgasmanager
 # App
-PRODUCT_PACKAGES += SmartgasApp
+PRODUCT_PACKAGES += devtitans.smartgasapp
