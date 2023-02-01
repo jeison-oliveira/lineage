@@ -6,6 +6,10 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.PowerManager;
@@ -16,13 +20,25 @@ import android.widget.*;
 
 import android.os.RemoteException;
 
+import java.util.List;
+
 import devtitans.smartgasmanager.SmartgasManager;                          // Biblioteca do Manager
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "DevTITANS.SmartgasApp";
 
     private TextView textStatus, textConcentration;
-    private SmartgasManager manager;                                        // Atributo para o Manager
+    //private SmartgasManager manager;                                        // Atributo para o Manager
+
+    /**
+     * Sensor HAL
+     */
+    private SensorManager sensorManager;
+    private TextView lightLevel;
+    public String sensorListString = "";
+    /**
+     *
+     */
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,7 +47,12 @@ public class MainActivity extends AppCompatActivity {
         textStatus =     findViewById(R.id.textStatus);                      // Acessa os componentes da tela
         textConcentration = findViewById(R.id.textConcentration);
 
-        manager = SmartgasManager.getInstance();
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+
+        List<Sensor> sensorList = sensorManager.getSensorList(65536);
+        Sensor sensor = sensorList.get(0);
+
+        sensorManager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_UI);
 
         updateAll(null);
 //        GasCheckScheduler.scheduleGasCheck(this);
@@ -51,16 +72,24 @@ public class MainActivity extends AppCompatActivity {
         textStatus.setText("Atualizando ...");
         textStatus.setTextColor(Color.parseColor("#c47e00"));
 
-        try {
-            int concentration = manager.getConcentration();                        // Executa o método getConcentration via manager
-            textConcentration.setText(String.valueOf(concentration));
 
-            int status = manager.connect();                                  // Executa o método connect via manager
-            if (status == 0) {
+
+
+    }
+
+    private SensorEventListener listener = new SensorEventListener() {
+        @Override
+        public void onSensorChanged(SensorEvent event) {
+            // The value of the first subscript in the values array is the current light intensity
+            float concentration = event.values[0];
+            Log.d("smartgas", "concentration = " + concentration);             // Executa o método getConcentration via manager
+            textConcentration.setText(String.valueOf(concentration));
+                               // Executa o método connect via manager
+            if (concentration <=0 ) {
                 textStatus.setText("Desconectado");
                 textStatus.setTextColor(Color.parseColor("#73312f"));
             }
-            else if (status == 1) {
+            else if (concentration > 0) {
                 textStatus.setText("Conectado");
                 textStatus.setTextColor(Color.parseColor("#6d790c"));
             }
@@ -69,12 +98,11 @@ public class MainActivity extends AppCompatActivity {
                 textStatus.setTextColor(Color.parseColor("#207fb5"));
             }
 
-        } catch (android.os.RemoteException e) {
-            Toast.makeText(this, "Erro ao acessar o Binder!", Toast.LENGTH_LONG).show();
-            Log.e(TAG, "Erro atualizando dados:", e);
         }
-
-    }
+        @Override
+        public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        }
+    };
 
     public boolean foregroundServiceRunning(){
         ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);

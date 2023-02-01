@@ -51,3 +51,5 @@ PRODUCT_PACKAGES += smartgas_service_client
 PRODUCT_PACKAGES += devtitans.smartgasmanager
 # App
 PRODUCT_PACKAGES += devtitans.smartgasapp
+# HAL Sensor
+PRODUCT_PACKAGES += android.hardware.sensors@2.X-devsensors-config2

@@ -14,6 +14,7 @@ add_service(smartgas_daemon, smartgas_service)             # O daemon irá criar
 
 # Permite acesso aos arquivos do /sys
 allow smartgas_daemon sysfs:file { getattr open read write };
+allow hal_sensors_default sysfs:file { getattr open read write };
 
 # Cria e Permite leitura da propriedades de sistema do smartgas
 vendor_public_prop(vendor_smartgas_prop)

@@ -16,6 +16,7 @@ import androidx.core.app.NotificationCompat;
 import devtitans.smartgasmanager.SmartgasManager;
 
 public class GasNotificationService extends IntentService {
+    float concentration = -1;
 
     public GasNotificationService() {
         super("SmartGasAlarmService");
@@ -29,7 +30,7 @@ public class GasNotificationService extends IntentService {
                 .setContentTitle(title)
                 .setContentText(message)
                 .setAutoCancel(true)
-                .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+                .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM))
                 .setContentIntent(pendingIntent);
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         CharSequence name = "SmartGas";// The user-visible name of the channel.
@@ -41,18 +42,19 @@ public class GasNotificationService extends IntentService {
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-        try {
-            int concentration = SmartgasManager.getInstance().getConcentration();
-            Log.d("smartgas", "concentration = " + concentration);
-            if (concentration > 1000) {
-                Log.d("smartgas", "ALTA CONCENTRAÇÃO DE GÁS!!");
-                Intent i = new Intent(this, MainActivity.class);
-                showNotification(this, "SmartGasApp", "ALTA CONCENTRAÇÃO DE GÁS!", i, 1);
-            } else {
-                Log.d("smartgas", "Baixa concentração de gás");
-            }
+       /* try {
+            //int concentration = SmartgasManager.getInstance().getConcentration();
+
         } catch (RemoteException e) {
             e.printStackTrace();
+        }*/
+        Log.d("smartgas", "concentration = " + concentration);
+        if (concentration > 1000) {
+            Log.d("smartgas", "ALTA CONCENTRAÇÃO DE GÁS!!");
+            Intent i = new Intent(this, MainActivity.class);
+            showNotification(this, "SmartGasApp", "ALTA CONCENTRAÇÃO DE GÁS!", i, 1);
+        } else {
+            Log.d("smartgas", "Baixa concentração de gás");
         }
     }
 }
